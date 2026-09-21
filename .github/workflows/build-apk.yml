@@ -1,8 +1,11 @@
-name: Build Android APK
+name: Build and Release Android APK
 
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
+  release:
+    types: [ published, created ]
   workflow_dispatch:
 
 permissions:
@@ -40,7 +43,7 @@ jobs:
 
       - name: Add Android Platform
         run: |
-          npx cap add android
+          npx cap add android || true
           npx cap sync android
 
       - name: Build Debug APK
@@ -48,26 +51,29 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk ../DeepSeek-Pocket-v1.0.0.apk
 
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: DeepSeek-Pocket-APK
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: DeepSeek-Pocket-v1.0.0.apk
 
-      - name: Create Release and Upload APK
+      - name: Attach APK to GitHub Release
         uses: softprops/action-gh-release@v2
-        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         with:
-          files: android/app/build/outputs/apk/debug/*.apk
+          files: DeepSeek-Pocket-v1.0.0.apk
           tag_name: v1.0.0
           name: "DeepSeek Pocket App v1.0.0"
           body: |
-            ### 📱 DeepSeek Pocket 专属移动端客户端
+            ### 📱 DeepSeek Pocket 专属移动端客户端 (APK 直装包)
 
-            - 📷 支持调用摄像头扫描 DSH 设置页二维码（含局域网与 Cloudflare 动态公网隧道）。
-            - 🔑 自动解析并记忆 8 位访问密码（Token），支持多主机设备管理。
-            - 🎨 内置 DeepSeek 手机版原生 UI 主题与布局重构引擎（气泡排版、已深度思考折叠胶囊、底部浮动 Dock）。
-            - 🔌 第三方插件 100% 兼容。
+            👇 **点击下方 Assets 里的 `DeepSeek-Pocket-v1.0.0.apk` 即可直接下载安装到手机**。
+
+            #### ✨ 核心功能
+            - 📷 **扫码直连**：支持扫描 DSH 设置页二维码（含局域网与 Cloudflare 动态公网隧道）。
+            - 🔑 **密码记忆**：自动解析并记忆 8 位访问密码（Token），支持多设备列表管理。
+            - 🎨 **DeepSeek 手机版原生 UI**：消息气泡化、已深度思考折叠胶囊、底部浮动 Dock。
+            - 🔌 **插件 100% 兼容**：自动美化并保留所有插件按钮与功能。
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
