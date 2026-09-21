@@ -46,6 +46,22 @@ jobs:
           npx cap add android || true
           npx cap sync android
 
+      - name: Patch Android Native Config & Injector
+        run: |
+          # 1. Copy Network Security Config
+          mkdir -p android/app/src/main/res/xml
+          cp android-res/xml/network_security_config.xml android/app/src/main/res/xml/
+
+          # 2. Patch AndroidManifest.xml for cleartext traffic and camera permissions
+          sed -i 's/<application/<application android:usesCleartextTraffic="true" android:networkSecurityConfig="@xml\/network_security_config"/' android/app/src/main/AndroidManifest.xml
+
+          # 3. Copy customized MainActivity.java with theme injector & back navigation
+          cp android-res/MainActivity.java android/app/src/main/java/com/deepseek/dshpocket/MainActivity.java
+
+          # 4. Copy injector assets to Android assets
+          mkdir -p android/app/src/main/assets/public/src/injector
+          cp src/injector/* android/app/src/main/assets/public/src/injector/
+
       - name: Build Debug APK
         run: |
           cd android
@@ -70,10 +86,10 @@ jobs:
 
             👇 **点击下方 Assets 里的 `DeepSeek-Pocket-v1.0.0.apk` 即可直接下载安装到手机**。
 
-            #### ✨ 核心功能
-            - 📷 **扫码直连**：支持扫描 DSH 设置页二维码（含局域网与 Cloudflare 动态公网隧道）。
-            - 🔑 **密码记忆**：自动解析并记忆 8 位访问密码（Token），支持多设备列表管理。
-            - 🎨 **DeepSeek 手机版原生 UI**：消息气泡化、已深度思考折叠胶囊、底部浮动 Dock。
-            - 🔌 **插件 100% 兼容**：自动美化并保留所有插件按钮与功能。
+            #### ✨ 修复与优化 (v1.0.0 稳定版)
+            - 🚀 **彻底解决黑屏问题**：采用顶级原生 WebView 引擎替代受限的 Iframe，支持局域网明文 `http://` 与公网 `https://` 混合通信。
+            - 🌐 **原生 WebSocket 与会话保持**：全量支持 DSH `/api/events.host` 流式实时推送与 8 位密码 Cookie 保持。
+            - 🎨 **DeepSeek 手机版原生 UI**：气泡对话、已深度思考折叠胶囊、浮动输入框。
+            - ⚙️ **悬浮球 & 原生返回键**：随时点击右下角悬浮球或手机系统返回键快速回到连接中心。
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,5 @@
 /**
- * DeepSeek Pocket Mobile Main Logic
+ * DeepSeek Pocket Mobile Main Logic (Native Top-Level Navigation Engine)
  */
 
 import { parsePocketUrl, QrScannerManager } from './scanner.js';
@@ -17,11 +17,9 @@ class AppState {
   constructor() {
     this.hosts = JSON.parse(localStorage.getItem(STORAGE_KEY_HOSTS) || '[]');
     this.settings = Object.assign({}, defaultSettings, JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS) || '{}'));
-    this.currentHost = null;
   }
 
   saveHost(hostData) {
-    // Find if host URL already exists
     const idx = this.hosts.findIndex(h => h.url === hostData.url);
     const item = {
       id: hostData.id || Date.now().toString(),
@@ -46,18 +44,11 @@ class AppState {
     this.hosts = this.hosts.filter(h => h.id !== id);
     localStorage.setItem(STORAGE_KEY_HOSTS, JSON.stringify(this.hosts));
   }
-
-  updateSettings(newSettings) {
-    this.settings = Object.assign(this.settings, newSettings);
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(this.settings));
-  }
 }
 
 const state = new AppState();
 
 // DOM Elements
-const hubView = document.getElementById('hub-view');
-const sessionView = document.getElementById('session-view');
 const scannerModal = document.getElementById('scanner-modal');
 const scannerVideo = document.getElementById('scanner-video');
 const scannerCanvas = document.getElementById('scanner-canvas');
@@ -69,11 +60,6 @@ const connectNameInput = document.getElementById('connect-name');
 const btnManualConnect = document.getElementById('btn-manual-connect');
 const historyList = document.getElementById('history-list');
 
-const pocketFrame = document.getElementById('pocket-frame');
-const floatingBall = document.getElementById('floating-ball');
-const floatingMenu = document.getElementById('floating-menu');
-
-// Initialize Scanner
 let scanner = null;
 
 function renderHistory() {
@@ -107,71 +93,23 @@ function renderHistory() {
   `).join('');
 }
 
-function openSession(hostData) {
-  state.currentHost = hostData;
+function navigateToTarget(hostData) {
   state.saveHost(hostData);
 
-  // Build target URL with token param if available
+  // Build target URL with token param
   let fullTarget = hostData.url;
   if (hostData.token && !fullTarget.includes('token=')) {
     fullTarget += `${fullTarget.includes('?') ? '&' : '?'}token=${encodeURIComponent(hostData.token)}`;
   }
 
-  // Switch views
-  hubView.classList.remove('active');
-  sessionView.classList.add('active');
-
-  // Load in Iframe
-  pocketFrame.src = fullTarget;
-
-  // Setup Theme Injection once frame loads
-  pocketFrame.onload = () => {
-    try {
-      if (state.settings.deepseekTheme) {
-        // Attempt cross-origin or same-origin injection
-        injectDeepSeekThemeToFrame(pocketFrame);
-      }
-    } catch (e) {
-      console.warn('Iframe injection note:', e);
-    }
-  };
+  // Native top-level navigation: ensures WebSockets, Cookies, cleartext, and full app lifecycle work
+  window.location.href = fullTarget;
 }
 
-async function injectDeepSeekThemeToFrame(frame) {
-  try {
-    const frameDoc = frame.contentDocument || frame.contentWindow.document;
-    if (!frameDoc) return;
-
-    // Fetch theme CSS and JS text
-    const cssRes = await fetch('/src/injector/deepseek-theme.css');
-    const cssText = await cssRes.text();
-
-    const style = frameDoc.createElement('style');
-    style.id = 'deepseek-mobile-injected-style';
-    style.textContent = cssText;
-    frameDoc.head.appendChild(style);
-
-    const script = frameDoc.createElement('script');
-    script.src = '/src/injector/deepseek-injector.js';
-    frameDoc.body.appendChild(script);
-  } catch (err) {
-    // Cross-origin fallback info
-    console.log('Cross-origin frame rendered safely.');
-  }
-}
-
-function closeSession() {
-  pocketFrame.src = 'about:blank';
-  sessionView.classList.remove('active');
-  hubView.classList.add('active');
-  floatingMenu.classList.remove('active');
-  renderHistory();
-}
-
-// Global Actions attached to window for inline events
+// Global actions
 window.appConnectTo = function (id) {
   const host = state.hosts.find(h => h.id === id);
-  if (host) openSession(host);
+  if (host) navigateToTarget(host);
 };
 
 window.appDeleteHost = function (id, event) {
@@ -186,7 +124,7 @@ document.getElementById('btn-open-scanner').addEventListener('click', async () =
   if (!scanner) {
     scanner = new QrScannerManager(scannerVideo, scannerCanvas, (parsed) => {
       scannerModal.classList.remove('active');
-      openSession({
+      navigateToTarget({
         name: parsed.isLan ? '扫描的局域网设备' : '扫描的公网隧道',
         url: parsed.url,
         token: parsed.token,
@@ -215,7 +153,7 @@ fileInput.addEventListener('change', async (e) => {
       const res = await scanner.scanImageFile(e.target.files[0]);
       if (res && res.parsed) {
         scannerModal.classList.remove('active');
-        openSession({
+        navigateToTarget({
           name: res.parsed.isLan ? '相册识别局域网' : '相册识别公网',
           url: res.parsed.url,
           token: res.parsed.token,
@@ -243,34 +181,12 @@ btnManualConnect.addEventListener('click', () => {
   const finalToken = token || (parsed ? parsed.token : '');
   const isLan = parsed ? parsed.isLan : !finalUrl.includes('trycloudflare.com');
 
-  openSession({
+  navigateToTarget({
     name: name || (isLan ? '局域网设备' : '公网设备'),
     url: finalUrl,
     token: finalToken,
     isLan: isLan
   });
-});
-
-// Floating Controller Ball
-floatingBall.addEventListener('click', () => {
-  floatingMenu.classList.toggle('active');
-});
-
-document.getElementById('menu-reload').addEventListener('click', () => {
-  pocketFrame.contentWindow.location.reload();
-  floatingMenu.classList.remove('active');
-});
-
-document.getElementById('menu-home').addEventListener('click', () => {
-  closeSession();
-});
-
-document.getElementById('menu-theme-toggle').addEventListener('click', () => {
-  state.settings.deepseekTheme = !state.settings.deepseekTheme;
-  state.updateSettings({ deepseekTheme: state.settings.deepseekTheme });
-  alert(`DeepSeek 布局美化已${state.settings.deepseekTheme ? '开启' : '关闭'}`);
-  pocketFrame.contentWindow.location.reload();
-  floatingMenu.classList.remove('active');
 });
 
 // Init

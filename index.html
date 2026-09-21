@@ -12,7 +12,7 @@
 </head>
 <body>
   <div id="app">
-    <!-- 1. Hub View (首页 / 连接中心) -->
+    <!-- Hub View (首页 / 连接中心) -->
     <div id="hub-view" class="view active">
       <header class="hub-header">
         <div class="brand">
@@ -80,20 +80,7 @@
       </div>
     </div>
 
-    <!-- 2. Active Session View (嵌入式 WebView/Iframe 容器) -->
-    <div id="session-view" class="view">
-      <iframe id="pocket-frame" src="about:blank" allow="clipboard-read; clipboard-write; microphone; camera;"></iframe>
-
-      <!-- Floating Menu Button -->
-      <div class="floating-ball" id="floating-ball" title="控制中心">⚙️</div>
-      <div class="floating-menu" id="floating-menu">
-        <div class="menu-item" id="menu-reload">🔄 刷新页面</div>
-        <div class="menu-item" id="menu-theme-toggle">🎨 切换 DeepSeek 主题</div>
-        <div class="menu-item" id="menu-home" style="color: #F53F3F;">🏠 返回连接中心</div>
-      </div>
-    </div>
-
-    <!-- 3. Scanner Camera Modal Overlay -->
+    <!-- Scanner Camera Modal Overlay -->
     <div id="scanner-modal">
       <div class="scanner-header">
         <span style="font-weight: 600;">扫描 DSH 二维码</span>
