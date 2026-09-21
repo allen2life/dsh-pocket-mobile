@@ -1,0 +1,334 @@
+/**
+ * DeepSeek Mobile App Official Design System Stylesheet for DSH Web
+ * Transforms DSH Web Layout into DeepSeek Mobile App UI
+ */
+
+:root {
+  --ds-primary: #4D6BFE;
+  --ds-primary-hover: #3D5AFE;
+  --ds-primary-light: #EEF2FE;
+  --ds-primary-dark: #2F4BEA;
+  --ds-bg-main: #F7F8FA;
+  --ds-bg-card: #FFFFFF;
+  --ds-bg-hover: #F0F2F5;
+  --ds-text-main: #18191C;
+  --ds-text-secondary: #61666D;
+  --ds-text-muted: #9499A0;
+  --ds-border: #E3E5E7;
+  --ds-border-light: #F1F2F3;
+  --ds-radius-lg: 20px;
+  --ds-radius-md: 14px;
+  --ds-radius-sm: 8px;
+  --ds-radius-pill: 9999px;
+  --ds-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --ds-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --ds-safe-top: env(safe-area-inset-top, 0px);
+  --ds-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Dark Theme Overrides */
+[data-theme='dark'], body.dark, .dark {
+  --ds-bg-main: #111214;
+  --ds-bg-card: #1A1C20;
+  --ds-bg-hover: #24272D;
+  --ds-text-main: #E5E6EB;
+  --ds-text-secondary: #86909C;
+  --ds-text-muted: #4E5969;
+  --ds-border: #2C3038;
+  --ds-border-light: #22252A;
+  --ds-primary-light: rgba(77, 107, 254, 0.15);
+}
+
+/* Reset & Mobile Viewport Enforcements */
+html, body {
+  background-color: var(--ds-bg-main) !important;
+  color: var(--ds-text-main) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
+  overscroll-behavior-y: contain;
+  user-select: text;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ----------------- Top Header Overhaul (DeepSeek Style) ----------------- */
+header, .app-header, .navbar, .top-nav, [class*="header_"], [class*="navbar_"] {
+  background-color: var(--ds-bg-card) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid var(--ds-border-light) !important;
+  padding-top: var(--ds-safe-top) !important;
+  height: calc(52px + var(--ds-safe-top)) !important;
+  box-shadow: var(--ds-shadow-sm) !important;
+  z-index: 100 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+/* Model Selector Badge (Center Capsule in DeepSeek App) */
+.model-selector, [class*="model-badge"], [class*="modelSelect"] {
+  background: var(--ds-bg-main) !important;
+  border: 1px solid var(--ds-border) !important;
+  border-radius: var(--ds-radius-pill) !important;
+  padding: 4px 12px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--ds-text-main) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* ----------------- Chat Stream & Bubbles (消息气泡重构) ----------------- */
+.chat-container, .messages-container, [class*="messageList"], [class*="chatScroll"] {
+  background-color: var(--ds-bg-main) !important;
+  padding: 12px 14px 120px 14px !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+}
+
+/* Message Item Common */
+.message-item, [class*="message-row"], [class*="chat-message"] {
+  margin-bottom: 18px !important;
+  animation: dsFadeIn 0.25s ease-out;
+}
+
+@keyframes dsFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* User Message (Right Bubble in DeepSeek Mobile) */
+.message-user, [data-role="user"], [class*="userMessage"], .user-turn {
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.message-user > .content, [data-role="user"] .message-bubble, .user-turn .bubble {
+  background: var(--ds-primary-light) !important;
+  color: var(--ds-primary-dark) !important;
+  border: 1px solid rgba(77, 107, 254, 0.2) !important;
+  border-radius: 18px 18px 4px 18px !important;
+  padding: 10px 15px !important;
+  max-width: 86% !important;
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+  box-shadow: 0 1px 3px rgba(77, 107, 254, 0.08) !important;
+}
+
+[data-theme='dark'] .message-user > .content,
+.dark .message-user > .content {
+  background: rgba(77, 107, 254, 0.22) !important;
+  color: #D2DCFF !important;
+  border-color: rgba(77, 107, 254, 0.35) !important;
+}
+
+/* Assistant Message (Left Layout in DeepSeek Mobile) */
+.message-assistant, [data-role="assistant"], [class*="assistantMessage"], .assistant-turn {
+  display: flex !important;
+  justify-content: flex-start !important;
+}
+
+.message-assistant > .content, [data-role="assistant"] .message-bubble, .assistant-turn .bubble {
+  background: var(--ds-bg-card) !important;
+  color: var(--ds-text-main) !important;
+  border: 1px solid var(--ds-border-light) !important;
+  border-radius: 4px 18px 18px 18px !important;
+  padding: 12px 16px !important;
+  max-width: 96% !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  box-shadow: var(--ds-shadow-sm) !important;
+}
+
+/* ----------------- DeepThink (深度思考折叠胶囊) ----------------- */
+details.deepthink-capsule, details[data-role="reasoning"], .reasoning-container, .think-block, [class*="reasoning_"] {
+  background: var(--ds-bg-main) !important;
+  border: 1px solid var(--ds-border) !important;
+  border-radius: var(--ds-radius-md) !important;
+  margin: 8px 0 12px 0 !important;
+  overflow: hidden !important;
+  transition: all 0.2s ease;
+}
+
+details.deepthink-capsule summary, .reasoning-header {
+  list-style: none !important;
+  cursor: pointer !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--ds-primary) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  user-select: none !important;
+}
+
+details.deepthink-capsule summary::-webkit-details-marker {
+  display: none !important;
+}
+
+details.deepthink-capsule summary::before {
+  content: "💡";
+  font-size: 14px;
+}
+
+details.deepthink-capsule[open] summary {
+  border-bottom: 1px dashed var(--ds-border) !important;
+  background: var(--ds-primary-light) !important;
+}
+
+.reasoning-content, details.deepthink-capsule .content {
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  color: var(--ds-text-secondary) !important;
+  line-height: 1.5 !important;
+  background: var(--ds-bg-main) !important;
+  border-left: 3px solid var(--ds-primary) !important;
+  margin: 4px 8px 8px 8px !important;
+}
+
+/* ----------------- Bottom Input Bar (底部输入栏) ----------------- */
+.input-dock, .chat-input-wrapper, [class*="inputContainer"], [class*="bottomBar"] {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: linear-gradient(180deg, rgba(247, 248, 250, 0) 0%, var(--ds-bg-main) 20%) !important;
+  padding: 10px 12px calc(8px + var(--ds-safe-bottom)) 12px !important;
+  z-index: 90 !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.input-pill-box {
+  background: var(--ds-bg-card) !important;
+  border: 1px solid var(--ds-border) !important;
+  border-radius: var(--ds-radius-lg) !important;
+  padding: 6px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  box-shadow: var(--ds-shadow-md) !important;
+}
+
+.input-pill-box textarea, .input-pill-box input[type="text"] {
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 15px !important;
+  color: var(--ds-text-main) !important;
+  resize: none !important;
+  max-height: 120px !important;
+  padding: 4px 6px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Bottom Action Row inside Input */
+.input-actions-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.input-tools-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.action-chip-btn {
+  background: var(--ds-bg-main) !important;
+  border: 1px solid var(--ds-border-light) !important;
+  border-radius: var(--ds-radius-pill) !important;
+  padding: 4px 10px !important;
+  font-size: 12px !important;
+  color: var(--ds-text-secondary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  cursor: pointer !important;
+}
+
+.action-chip-btn.active {
+  background: var(--ds-primary-light) !important;
+  color: var(--ds-primary) !important;
+  border-color: rgba(77, 107, 254, 0.3) !important;
+  font-weight: 600 !important;
+}
+
+/* DeepSeek Blue Send Button */
+.ds-send-btn, button[type="submit"], [class*="sendButton"] {
+  background: var(--ds-primary) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: var(--ds-radius-pill) !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 6px rgba(77, 107, 254, 0.35) !important;
+  cursor: pointer !important;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.ds-send-btn:active {
+  transform: scale(0.92);
+}
+
+.ds-send-btn:disabled {
+  background: var(--ds-border) !important;
+  color: var(--ds-text-muted) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+/* ----------------- Plugins & Extension Adaptations ----------------- */
+/* Ensures custom buttons from installed plugins (e.g. Memory, Cost Meter, Rewriter) look native */
+.plugin-bar, .extension-slot, [class*="plugin-"], [id*="plugin-"] {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+.plugin-bar button, .extension-slot button {
+  background: var(--ds-bg-card) !important;
+  border: 1px solid var(--ds-border) !important;
+  border-radius: var(--ds-radius-sm) !important;
+  color: var(--ds-text-secondary) !important;
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+}
+
+/* ----------------- Code Blocks & Tables ----------------- */
+pre, code {
+  border-radius: var(--ds-radius-sm) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+pre {
+  background: #181A1F !important;
+  color: #E2E8F0 !important;
+  padding: 12px !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  overflow-x: auto !important;
+  display: block !important;
+}
+
+th, td {
+  border: 1px solid var(--ds-border) !important;
+  padding: 6px 10px !important;
+  font-size: 13px !important;
+}

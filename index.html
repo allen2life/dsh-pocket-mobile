@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>DeepSeek Pocket</title>
+  <meta name="theme-color" content="#4D6BFE">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="./src/styles/app.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- 1. Hub View (首页 / 连接中心) -->
+    <div id="hub-view" class="view active">
+      <header class="hub-header">
+        <div class="brand">
+          <div class="brand-icon">🐳</div>
+          <div>
+            <div class="brand-title">DeepSeek Pocket</div>
+            <div class="brand-desc">电脑端 DSH 移动控制终端</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Big Scanner Hero Button -->
+      <div class="scan-hero-card" id="btn-open-scanner">
+        <div class="scan-hero-left">
+          <h3>📷 扫码快速连接</h3>
+          <p>扫描 DSH 设置页的局域网或公网二维码</p>
+        </div>
+        <div class="scan-hero-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+            <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+            <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+            <rect x="7" y="7" width="10" height="10" rx="1"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Manual Connection Form -->
+      <div class="card">
+        <div class="card-title">⌨️ 手动输入连接</div>
+        <div class="form-group">
+          <label class="form-label">DSH 访问网址 / IP:端口</label>
+          <div class="form-input-box">
+            <input type="text" id="connect-url" placeholder="例如 192.168.1.100:3081 或 https://xxx.trycloudflare.com">
+          </div>
+        </div>
+        <div class="form-group" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label class="form-label">8位访问密码 (Token，可选)</label>
+            <div class="form-input-box">
+              <input type="text" id="connect-pin" maxlength="8" placeholder="例如 88888888">
+            </div>
+          </div>
+          <div style="flex: 1;">
+            <label class="form-label">设备备注名 (可选)</label>
+            <div class="form-input-box">
+              <input type="text" id="connect-name" placeholder="例如 办公室电脑">
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-manual-connect">
+          🚀 立即连接
+        </button>
+      </div>
+
+      <!-- Saved Host History -->
+      <div class="card">
+        <div class="card-title">
+          <span>📜 已保存的主机</span>
+        </div>
+        <div class="history-list" id="history-list">
+          <!-- Dynamic rendering -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Active Session View (嵌入式 WebView/Iframe 容器) -->
+    <div id="session-view" class="view">
+      <iframe id="pocket-frame" src="about:blank" allow="clipboard-read; clipboard-write; microphone; camera;"></iframe>
+
+      <!-- Floating Menu Button -->
+      <div class="floating-ball" id="floating-ball" title="控制中心">⚙️</div>
+      <div class="floating-menu" id="floating-menu">
+        <div class="menu-item" id="menu-reload">🔄 刷新页面</div>
+        <div class="menu-item" id="menu-theme-toggle">🎨 切换 DeepSeek 主题</div>
+        <div class="menu-item" id="menu-home" style="color: #F53F3F;">🏠 返回连接中心</div>
+      </div>
+    </div>
+
+    <!-- 3. Scanner Camera Modal Overlay -->
+    <div id="scanner-modal">
+      <div class="scanner-header">
+        <span style="font-weight: 600;">扫描 DSH 二维码</span>
+        <button class="scanner-close-btn" id="btn-close-scanner">关闭</button>
+      </div>
+      <video id="scanner-video" playsinline></video>
+      <canvas id="scanner-canvas" style="display: none;"></canvas>
+      <div class="scanner-target-box">
+        <div class="scan-laser-line"></div>
+      </div>
+      <div class="scanner-hint">
+        将镜头对准 DSH「手机访问」设置页的二维码<br>
+        <label style="color: #4D6BFE; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 8px;">
+          从相册选择二维码图片
+          <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

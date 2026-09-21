@@ -1,0 +1,72 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Add Android Platform
+        run: |
+          npx cap add android || true
+          npx cap sync android
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: DeepSeek-Pocket-APK
+          path: android/app/build/outputs/apk/debug/*.apk
+
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+        with:
+          files: android/app/build/outputs/apk/debug/*.apk
+          tag_name: v1.0.0
+          name: "DeepSeek Pocket App v1.0.0"
+          body: |
+            ### 📱 DeepSeek Pocket 专属移动端客户端
+
+            - 📷 支持调用摄像头扫描 DSH 设置页二维码（含局域网与 Cloudflare 动态公网隧道）。
+            - 🔑 自动解析并记忆 8 位访问密码（Token），支持多主机设备管理。
+            - 🎨 内置 DeepSeek 手机版原生 UI 主题与布局重构引擎（气泡排版、已深度思考折叠胶囊、底部浮动 Dock）。
+            - 🔌 第三方插件 100% 兼容。
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
